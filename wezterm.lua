@@ -15,5 +15,8 @@ config.colors = {
     background = "none",
   },
 }
+config.window_background_gradient = {
+   colors = { "#000000" },
+ }
 
 return config
