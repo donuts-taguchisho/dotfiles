@@ -20,4 +20,6 @@ config.window_background_gradient = {
  }
 config.show_new_tab_button_in_tab_bar = false
 
+config.keys = require("keybinds").keys
+config.key_tables = require("keybinds").key_tables
 return config
