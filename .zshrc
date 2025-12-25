@@ -1,4 +1,3 @@
-
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
 export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
@@ -29,3 +28,7 @@ export NVM_DIR="$HOME/.nvm"
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
 export LIBRARY_PATH=$LIBRARY_PATH:$(brew --prefix zstd)/lib/
+
+# ruby on Rails
+export PATH="/opt/homebrew/bin:$PATH"
+eval "$(~/.local/bin/mise activate)"
