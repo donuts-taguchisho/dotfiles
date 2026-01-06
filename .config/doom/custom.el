@@ -10,7 +10,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(org-modern org-re-reveal org-tree-slide rails-i18n consult-lsp erblint lsp-mode))
+   '(web-mode vdiff-magit rails-routes rails-i18n org-tree-slide org-re-reveal org-modern org-appear magit-delta erblint consult-lsp)))
  '(tab-width 2)
  '(treemacs-width 50)
  '(treemacs-width-is-initially-locked nil))

@@ -91,14 +91,14 @@
 (add-hook 'org-mode-hook 'org-indent-mode)
 ;; 画像のリンクを実際の画像として表示する
 (setq org-startup-with-inline-images t)
-;; org-modernの設定
-;; (use-package! org-modern
-;;   :hook (org-mode . org-modern-mode)
-;;   :config
-;;   (setq org-modern-star '("◉" "○" "◈" "◇" "✳" "◆" "●" "◌") ;; 見出し記号のカスタム（お好みで）
-;;         org-modern-table-vertical 1   ;; 表の縦線を表示（1:あり, nil:なし）
-;;         org-modern-table-horizontal 0.2 ;; 表の横線の太さ
-;;         org-modern-list '((43 . "➤") (45 . "–") (42 . "•")) ;; リストの記号 (+, -, *) を変える
-;;         org-modern-todo nil ;; TODOの装飾。Doom標準の色を使いたい場合はnil、org-modern流にするならt
-;;         org-modern-tag nil  ;; タグの装飾。同上
-;;         ))
+org-modernの設定
+(use-package! org-modern
+  :hook (org-mode . org-modern-mode)
+  :config
+  (setq org-modern-star '("◉" "○" "◈" "◇" "✳" "◆" "●" "◌") ;; 見出し記号のカスタム（お好みで）
+        org-modern-table-vertical 1   ;; 表の縦線を表示（1:あり, nil:なし）
+        org-modern-table-horizontal 0.2 ;; 表の横線の太さ
+        org-modern-list '((43 . "➤") (45 . "–") (42 . "•")) ;; リストの記号 (+, -, *) を変える
+        org-modern-todo nil ;; TODOの装飾。Doom標準の色を使いたい場合はnil、org-modern流にするならt
+        org-modern-tag nil  ;; タグの装飾。同上
+        ))
