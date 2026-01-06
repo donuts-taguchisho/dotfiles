@@ -83,3 +83,23 @@
 (map! :leader
       :desc "Toggle Scroll Bar"
       "l s" #'scroll-bar-mode)
+
+;; *太字* や /斜体/ などの記号を隠して表示する
+(setq org-hide-emphasis-markers t)
+(use-package! org-appear
+  :hook (org-mode . org-appear-mode)
+  :config
+  ;; リンク、画像、下付き文字なども対象にする設定（お好みで）
+  (setq org-appear-autoentities t
+        org-appear-autolinks t
+        org-appear-autosubmarkers t))
+
+(use-package! org-tree-slide
+  :config
+  ;; 起動時に自動で「矢印キーで操作できるモード」にする
+  (org-tree-slide-simple-profile)
+
+  ;; スライド移動時に見出しを「中央寄せ」して見やすくする（お好みで）
+  (setq org-tree-slide-heading-emphasis t))
+
+(setq org-directory "~/dotfiles/org/")
