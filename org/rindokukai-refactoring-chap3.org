@@ -9,806 +9,244 @@
 :END:
 
 ** 「臭い」とは何か？
-- リファクタリングを「いつ」行うべきか？という問いへのヒント
+- リファクタリングをいつ開始して、いつ終了させるか
 - 正確な基準（メトリクス）ではなく、直感的な兆候（臭い）を頼りにする
 - Kent Beckのおばあちゃんの言葉：「臭ったら、替えるのよ」
 
 
-* 1. 不可思議な名前 (Mysterious Name)
-** 概要
-- [cite_start]コードの明快さにおいて最も重要なのは「適切な名前付け」 [cite: 1128]
+** 1. 不可思議な名前 (Mysterious Name)
+*** 概要
+- コードの明快さにおいて最も重要なのは「適切な名前付け」
 - 関数、モジュール、変数、クラスなど、何をしているかが名前から分からない状態
 - 対策: 「関数宣言の変更」「変数名の変更」「フィールド名の変更」
 
-** コード例
-#+BEGIN_SRC javascript
-// 🔴 Bad: 何の日数なのか、dが何を指すのか不明
-const d = 30;
+*** コード例
+[[file:~/Documents/refactoring/01_mysterious_name.js][MysteriousName]]
 
-function calc(x) {
-  return x * d;
-}
-
-// 🟢 Good: 変数名と関数名で「意図」を語らせる
-// リファクタリング: 変数名の変更、関数宣言の変更
-const daysInMonth = 30;
-
-function calculateMonthlyTotal(dailyValue) {
-  return dailyValue * daysInMonth;
-}
-#+END_SRC
-
-* 2. 重複したコード (Duplicated Code)
-** 概要
-- [cite_start]同じ構造のコードが2箇所以上にある状態 [cite: 1130]
+** 2. 重複したコード (Duplicated Code)
+*** 概要
+- 同じ構造のコードが2箇所以上にある状態
 - 問題点: 修正時にすべての箇所を見つけて直す必要がある（修正漏れのリスク）
 - 対策: 「関数の抽出」で1箇所にまとめる
 
-** コード例
-#+BEGIN_SRC javascript
-// 🔴 Bad: 2つの関数で「請求額計算」のロジックが重複している
-function invoiceForA(data) {
-  printHeader();
-  // 重複部分
-  let total = 0;
-  for (const i of data.items) {
-    total += i.price * i.qty;
-  }
-  printTotal(total);
-}
+*** コード例
+[[file:~/Documents/refactoring/02_duplicated_code.js][Duplicated Code]]
 
-function invoiceForB(data) {
-  printTitle();
-  // 重複部分 (コピペの温床)
-  let total = 0;
-  for (const i of data.items) {
-    total += i.price * i.qty;
-  }
-  printAmount(total);
-}
-
-// 🟢 Good: 重複部分を関数として抽出する
-// リファクタリング: 関数の抽出
-function calculateTotal(items) {
-  let total = 0;
-  for (const i of items) {
-    total += i.price * i.qty;
-  }
-  return total;
-}
-
-function invoiceForA(data) {
-  printHeader();
-  const total = calculateTotal(data.items); // 呼び出すだけ
-  printTotal(total);
-}
-#+END_SRC
-
-* 3. 長い関数 (Long Function)
-** 概要
-- [cite_start]長く充実した人生を送るのは、短い関数を持ったプログラム [cite: 1134]
+** 3. 長い関数 (Long Function)
+*** 概要
+- 長く充実した人生を送るのは、短い関数を持ったプログラム
 - 昔は呼び出しコストが懸念されたが、現代では無視できる
 - 指針: 「意図」と「実装」の分離
   - 「何をしているか（実装）」を読み解く必要があるなら、「何をするか（意図）」を示す関数に切り出す
-- [cite_start]対策: 「関数の抽出」が99% [cite: 1136]
+- 対策: 「関数の抽出」が99%
 
-** コード例
-#+BEGIN_SRC javascript
-// 🔴 Bad: コメントがないと何をしている処理ブロックか分からない
-function printOwing(invoice) {
-  let outstanding = 0;
+*** コード例
+[[file:~/Documents/refactoring/03_long_function.js][Long Function]]
 
-  console.log("***********************");
-  console.log("**** Customer Owes ****");
-  console.log("***********************");
-
-  // 未払い金の計算 (ここから実装がダラダラ続く...)
-  for (const o of invoice.orders) {
-    outstanding += o.amount;
-  }
-
-  // 締め日の記録
-  const today = Clock.today;
-  invoice.dueDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 30);
-
-  // 明細の印字
-  console.log(`name: ${invoice.customer}`);
-  console.log(`amount: ${outstanding}`);
-}
-
-// 🟢 Good: 関数名を見るだけで「何をしているか」が分かる
-// リファクタリング: 関数の抽出
-function printOwing(invoice) {
-  printBanner(); // 何をするか（バナー表示）
-  const outstanding = calculateOutstanding(invoice); // 何をするか（未払い計算）
-  recordDueDate(invoice); // 何をするか（締め日記録）
-  printDetails(invoice, outstanding); // 何をするか（詳細印字）
-}
-#+END_SRC
-
-* 4. 長いパラメータリスト (Long Parameter List)
-** 概要
-- [cite_start]引数が多いと、使い方が難しくなり、混乱のもとになる [cite: 1142]
+** 4. 長いパラメータリスト (Long Parameter List)
+*** 概要
+- 引数が多いと、使い方が難しくなり、混乱のもとになる
 - 対策:
   - 「問い合わせによるパラメータの置き換え」: 引数で渡さず、関数内で取得する
   - 「オブジェクトそのものの受け渡し」: バラバラのデータではなく元のオブジェクトを渡す
   - 「パラメータオブジェクトの導入」: 複数の引数を1つのオブジェクトにまとめる
 
-** コード例
-#+BEGIN_SRC javascript
-// 🔴 Bad: 範囲を指定するのに start と end をバラバラに渡している
-// 日付範囲が必要な関数すべてで、この2つの引数が必要になってしまう
-function getInvoices(startDate, endDate, customerId, status) {
-  // ...
-}
+*** コード例
+[[file:~/Documents/refactoring/04_long_parameter_list.js][Long Parameter List]]
 
-getInvoices(new Date('2026-01-01'), new Date('2026-01-31'), 1, 'paid');
-
-// 🟢 Good: 範囲をひとつのオブジェクトとして扱う
-// リファクタリング: パラメータオブジェクトの導入
-// 共通IDのフロントエンド(React)でも、Propsをまとめる際によく使います
-function getInvoices(dateRange, customerId, status) {
-  // ...
-}
-
-const range = { start: new Date('2026-01-01'), end: new Date('2026-01-31') };
-getInvoices(range, 1, 'paid');
-#+END_SRC
-
-* 5. グローバルなデータ (Global Data)
-** 概要
-- [cite_start]コードベースのどこからでも変更できてしまい、どこで変更されたか追跡できない [cite: 1145]
-- [cite_start]「地獄の第四層から来た悪魔」 [cite: 1145]
+** 5. グローバルなデータ (Global Data)
+*** 概要
+- コードベースのどこからでも変更できてしまい、どこで変更されたか追跡できない
+- 「地獄の第四層から来た悪魔」
 - グローバル変数だけでなく、クラス変数やシングルトンも含まれる
 - 対策: 「変数のカプセル化」でアクセスを関数経由に限定する
 
-** コード例
-#+BEGIN_SRC javascript
-// 🔴 Bad: どこからでも書き換え可能。バグの原因特定が困難。
-let defaultOwner = { firstName: "Martin", lastName: "Fowler" };
+*** コード例
+[[file:~/Documents/refactoring/05_global_data.js][Global Data]]
 
-// ... どこかのファイルで ...
-defaultOwner = { firstName: "Jobcan", lastName: "Taro" }; // いきなり書き換わる
-
-// 🟢 Good: 関数経由でしかアクセスさせない（カプセル化）
-// 変更箇所を特定しやすく、バリデーションなども追加できる
-// リファクタリング: 変数のカプセル化
-let defaultOwnerData = { firstName: "Martin", lastName: "Fowler" };
-
-export function defaultOwner() {
-  return defaultOwnerData;
-}
-
-export function setDefaultOwner(arg) {
-  defaultOwnerData = arg;
-}
-#+END_SRC
-
-* 6. 変更可能なデータ (Mutable Data)
-** 概要
-- [cite_start]データの変更は予期せぬ結果やバグを引き起こしやすい [cite: 1151]
+** 6. 変更可能なデータ (Mutable Data)
+*** 概要
+- データの変更は予期せぬ結果やバグを引き起こしやすい
 - ある箇所での変更が、別の箇所（古い値を期待している箇所）でバグを生む
 - 関数型プログラミングでは「データは不変（Immutable）」が基本
 - 対策: 「変数のカプセル化」「変数の分離」「問い合わせと更新の分離」など
 
-** コード例
-#+BEGIN_SRC javascript
-// 🔴 Bad: ひとつの変数を「再利用」して値を更新している
-// 途中で変数の意味が変わってしまい、読み手が混乱する
-function distanceTravelled(scenario, time) {
-  let result;
-  // ここでは「初期加速度」として使われている
-  let acc = scenario.primaryForce / scenario.mass;
-  let primaryTime = Math.min(time, scenario.delay);
-  result = 0.5 * acc * primaryTime * primaryTime;
+*** コード例
+[[file:~/Documents/refactoring/06_mutable_data.js][Mutable Data]]
 
-  let secondaryTime = time - scenario.delay;
-  if (secondaryTime > 0) {
-    let primaryVelocity = acc * scenario.delay;
-    // ここでは「全加速度」として再代入されている。変数の役割が変わっている。
-    acc = (scenario.primaryForce + scenario.secondaryForce) / scenario.mass;
-    result += primaryVelocity * secondaryTime +
-              0.5 * acc * secondaryTime * secondaryTime;
-  }
-  return result;
-}
-
-// 🟢 Good: 役割ごとに変数を分け、constで不変にする
-// リファクタリング: 変数の分離
-function distanceTravelled(scenario, time) {
-  let result;
-  // constを使うことで、これ以上変更されないことが保証される
-  const primaryAcceleration = scenario.primaryForce / scenario.mass;
-  let primaryTime = Math.min(time, scenario.delay);
-  result = 0.5 * primaryAcceleration * primaryTime * primaryTime;
-
-  let secondaryTime = time - scenario.delay;
-  if (secondaryTime > 0) {
-    let primaryVelocity = primaryAcceleration * scenario.delay;
-    // 別の役割には別の変数名をつける
-    const secondaryAcceleration = (scenario.primaryForce + scenario.secondaryForce) / scenario.mass;
-    result += primaryVelocity * secondaryTime +
-              0.5 * secondaryAcceleration * secondaryTime * secondaryTime;
-  }
-  return result;
-}
-#+END_SRC
-
-* 7. 変更の偏り (Divergent Change)
-** 概要
+** 7. 変更の偏り (Divergent Change)
+*** 概要
 - 「1つのクラスが、異なる理由で頻繁に変更される」状態
 - 例：「DBの仕様変更でも、金融商品の追加でも、このクラスを修正している」
 - 理想：変更箇所は1つに特定したい（単一責任の原則）
 - 対策：「フェーズの分離」「関数の移動」「クラスの抽出」でコンテキストを分ける
 
-** コード例
-#+BEGIN_SRC javascript
-// 🔴 Bad: 1つのクラスに「DB処理」と「ビジネスロジック」が混在
-// DB変更時も、給与計算ルール変更時も、このクラスを触る必要がある
-class Payroll {
-  calculatePay(employeeId) {
-    // DBからデータ取得 (DBのコンテキスト)
-    const data = db.query(`SELECT * FROM employees WHERE id = ${employeeId}`);
+*** コード例
+[[file:~/Documents/refactoring/07_divergent_change.js][Divergent Change]]
 
-    // 給与計算ロジック (金融のコンテキスト)
-    let pay = data.salary;
-    if (data.overtime > 0) {
-      pay += data.overtime * 2000;
-    }
-    return pay;
-  }
-}
-
-// 🟢 Good: 責務ごとにクラス/モジュールを分ける
-// リファクタリング: クラスの抽出
-class EmployeeRepository {
-  find(id) { /* DB処理 */ }
-}
-
-class WageCalculator {
-  calculate(employee) { /* 計算ロジック */ }
-}
-#+END_SRC
-
-* 8. 変更の分散 (Shotgun Surgery)
-** 概要
+** 8. 変更の分散 (Shotgun Surgery)
+*** 概要
 - 「変更の偏り」の逆パターン
 - 「1つの変更をするために、あちこちのクラスを少しずつ修正して回る」状態
 - 問題点：修正箇所が多いと見落としが発生しやすい
 - 対策：「関数の移動」「フィールドの移動」で1箇所に集める
 
-** コード例
-#+BEGIN_SRC javascript
-// 🔴 Bad: 「最低年齢」のルールが変わると、あちこち修正が必要
-// File A: アカウント作成
-function createAccount(age) {
-  if (age < 18) throw new Error("Too young"); // 修正が必要
-  // ...
-}
+*** コード例
+[[file:~/Documents/refactoring/08_shotgun_surgery.js][Shotgun Surgery]]
 
-// File B: イベント参加登録
-function registerEvent(user) {
-  if (user.age < 18) return false; // ここも修正が必要
-  // ...
-}
-
-// 🟢 Good: ルールを1箇所（Userクラスやドメインモデル）に集める
-// リファクタリング: 関数の移動
-class User {
-  // ...
-  isAdult() {
-    return this.age >= 18; // ここだけ直せばOK
-  }
-}
-
-// File A
-if (!user.isAdult()) throw new Error("Too young");
-#+END_SRC
-
-* 9. 特性の横恋慕 (Feature Envy)
-** 概要
+** 9. 特性の横恋慕 (Feature Envy)
+*** 概要
 - 「ある関数が、自分の所属するモジュールより、他のモジュールのデータとばかり会話している」状態
 - 典型例：他オブジェクトのgetterを何度も呼び出して計算している関数
 - 対策：その関数（またはその一部）を、データがある場所へ移動してあげる（「関数の移動」）
 
-** コード例
-#+BEGIN_SRC javascript
-// 🔴 Bad: calculateTotalはInvoiceのデータばかり使っている
-// この関数はInvoiceクラスに居たがっている（横恋慕）
-class Order {
-  calculateTotal(invoice) {
-    let total = invoice.subtotal;
-    total += invoice.tax;
-    total -= invoice.discount;
-    return total;
-  }
-}
+*** コード例
+[[file:~/Documents/refactoring/09_feature_envy.js][Feature Envy]]
 
-// 🟢 Good: 計算ロジックをデータの持ち主へ移動する
-// リファクタリング: 関数の移動
-class Invoice {
-  get total() {
-    return this.subtotal + this.tax - this.discount;
-  }
-}
-
-class Order {
-  print() {
-    console.log(this.invoice.total); // 呼ぶだけ
-  }
-}
-#+END_SRC
-
-* 10. データの群れ (Data Clumps)
-** 概要
+** 10. データの群れ (Data Clumps)
+*** 概要
 - いつも一緒に行動しているデータたち（数個のデータ項目）
 - フィールドやメソッドの引数に、同じ組み合わせで何度も現れる
 - 対策：「クラスの抽出」「パラメータオブジェクトの導入」で1つのオブジェクトにまとめる
 
-** コード例
-#+BEGIN_SRC javascript
-// 🔴 Bad: x, y, z が常に一緒に渡されている
-function drawPoint(x, y, z) { ... }
-function movePoint(x, y, z, dx, dy, dz) { ... }
+*** コード例
+[[file:~/Documents/refactoring/10_data_clumps.js][Data Clumps]]
 
-// 🟢 Good: Pointクラスとしてまとめる
-// 引数が減り、データの関係性が明確になる
-// リファクタリング: クラスの抽出
-class Point {
-  constructor(x, y, z) {
-    this.x = x;
-    this.y = y;
-    this.z = z;
-  }
-}
-
-function drawPoint(point) { ... }
-#+END_SRC
-
-* 11. 基本データ型への執着 (Primitive Obsession)
-** 概要
+** 11. 基本データ型への執着 (Primitive Obsession)
+*** 概要
 - 電話番号、通貨、範囲などを、単なる文字列や数値（プリミティブ）として扱ってしまうこと
 - 「文字列で型付けされた(stringly typed)」変数になりがち
 - 対策：「オブジェクトによるプリミティブの置き換え」で専用のクラスを作る
 
-** コード例
-#+BEGIN_SRC javascript
-// 🔴 Bad: 電話番号をただの文字列として扱っている
-// フォーマットやバリデーションのロジックが散乱する
-const user = {
-  phone: "090-1234-5678"
-};
+*** コード例
+[[file:~/Documents/refactoring/11_primitive_obsession.js][Primitive Obsession]]
 
-// 🟢 Good: TelephoneNumberクラスを作る
-// 表示ロジックなどもこのクラスに凝集できる
-// リファクタリング: オブジェクトによるプリミティブの置き換え
-class TelephoneNumber {
-  constructor(value) {
-    this._value = value;
-  }
-  get areaCode() { /* ... */ }
-  toString() { return this._value; }
-}
-const user = {
-  phone: new TelephoneNumber("090-1234-5678")
-};
-#+END_SRC
-
-* 12. 重複したスイッチ文 (Repeated Switches)
-** 概要
+** 12. 重複したスイッチ文 (Repeated Switches)
+*** 概要
 - 同じ条件分岐（switchやif-else）がコードのあちこちに重複している状態
 - 問題点：新しい分岐（タイプ）を追加する際、すべてのswitch文を探して修正する必要がある
 - 対策：「ポリモーフィズムによる条件記述の置き換え」
 
-** コード例
-#+BEGIN_SRC javascript
-// 🔴 Bad: タイプごとの分岐があちこちにある
-function getPayAmount(employee) {
-  switch (employee.type) {
-    case 'ENGINEER': return ...;
-    case 'MANAGER': return ...;
-  }
-}
-function getDaysOff(employee) {
-  switch (employee.type) {
-    case 'ENGINEER': return ...;
-    case 'MANAGER': return ...;
-  }
-}
+*** コード例
+[[file:~/Documents/refactoring/12_repeated_switches.js][Repeated Switches]]
 
-// 🟢 Good: ポリモーフィズムで解決
-// リファクタリング: サブクラスによるタイプコードの置き換え
-class Engineer extends Employee {
-  getPayAmount() { ... }
-  getDaysOff() { ... }
-}
-class Manager extends Employee { ... }
-
-// 呼び出す側はタイプを気にしなくて良い
-employee.getPayAmount();
-#+END_SRC
-
-* 13. ループ (Loops)
-** 概要
+** 13. ループ (Loops)
+*** 概要
 - プログラミング初期からあるループ処理だが、今やパイプライン処理の方が優れている
 - ループは「何をしているか」が見えにくい
 - 対策：「パイプラインによるループの置き換え」（filter, mapなど）
 
-** コード例
-#+BEGIN_SRC javascript
-// 🔴 Bad: ループの中でフィルタリングと加工が混ざっている
-const names = [];
-for (const i of input) {
-  if (i.job === "programmer") {
-    names.push(i.name);
-  }
-}
+*** コード例
+[[file:~/Documents/refactoring/13_loops.js][Loops]]
 
-// 🟢 Good: パイプライン処理で「処理の流れ」を記述する
-// リファクタリング: パイプラインによるループの置き換え
-const names = input
-  .filter(i => i.job === "programmer")
-  .map(i => i.name);
-#+END_SRC
-
-* 14. 怠け者の要素 (Lazy Element)
-** 概要
+** 14. 怠け者の要素 (Lazy Element)
+*** 概要
 - 働いていないクラスや関数
 - 例：本体と同じ名前の関数を呼ぶだけの関数、メソッドが1つしかないクラス
 - かつては必要だったが、リファクタリングの結果不要になったものが多い
 - 対策：「関数のインライン化」「クラスのインライン化」で削除する
 
-** コード例
-#+BEGIN_SRC javascript
-// 🔴 Bad: 何の付加価値もない関数
-// 将来変更するかも？と思って作りがちだが、今は邪魔なだけ
-function reportLines(aCustomer) {
-  const lines = [];
-  gatherCustomerData(lines, aCustomer); // ただ委譲しているだけ
-  return lines;
-}
+*** コード例
+[[file:~/Documents/refactoring/14_lazy_element.js][Lazy Element]]
 
-function gatherCustomerData(out, aCustomer) {
-  out.push(["name", aCustomer.name]);
-  out.push(["location", aCustomer.location]);
-}
-
-// 🟢 Good: インライン化してシンプルにする
-// リファクタリング: 関数のインライン化
-function reportLines(aCustomer) {
-  const lines = [];
-  lines.push(["name", aCustomer.name]);
-  lines.push(["location", aCustomer.location]);
-  return lines;
-}
-#+END_SRC
-
-* 15. 疑わしき一般化 (Speculative Generality)
-** 概要
+** 15. 疑わしき一般化 (Speculative Generality)
+*** 概要
 - 「いつか必要になるだろう」と先回りして作った、現在は使われていない機能
 - 未使用のパラメータ、複雑すぎる抽象クラス、テストコードからしか呼ばれていない関数など
 - 対策：無用の長物は削除する。「YAGNI (You Aren't Gonna Need It)」の原則
 - リファクタリング：「クラス階層の平坦化」「関数のインライン化」「関数宣言の変更」「デッドコードの削除」
 
-** コード例
-#+BEGIN_SRC javascript
-// 🔴 Bad: 今は使っていない「予備のパラメータ」
-// 将来、別の種類のアラートも送るかもしれない…？
-function sendAlert(user, message, type = "email", priority = "normal") {
-  if (type === "email") {
-    // ...
-  }
-  // priorityはどこでも使われていない
-}
+*** コード例
+[[file:~/Documents/refactoring/15_speculative_Generality.js][Speculative Generality]]
 
-// 現実の呼び出し側
-sendAlert(user, "Error occurred");
-
-// 🟢 Good: 現時点で必要なものだけにする
-// 必要になった時にパラメータを追加するのは難しくない（IDEを使えば特に）
-// リファクタリング: 関数宣言の変更
-function sendAlert(user, message) {
-  // ...
-}
-#+END_SRC
-
-* 16. 一時的属性 (Temporary Field)
-** 概要
+** 16. 一時的属性 (Temporary Field)
+*** 概要
 - 特定の状況（特定のメソッド実行中など）でしか値が入らないインスタンス変数
 - 普段は空っぽなのに、ある時だけ値が入る変数は、コードの理解を妨げる
 - 対策：「クラスの抽出」でその変数が活躍する場所（クラス）を作ってあげる
 
-** コード例
-#+BEGIN_SRC javascript
-// 🔴 Bad: calculateを実行している間だけ `_result` に値が入る
-class Order {
-  constructor(data) {
-    this._data = data;
-    this._result = null; // 普段は使わない一時的な属性
-  }
+*** コード例
+[[file:~/Documents/refactoring/16_temporary_field.js][Temporary Field]]
 
-  calculateTotal() {
-    this._result = 0;
-    // ... 複雑な計算で this._result を更新 ...
-    return this._result;
-  }
-
-  // 他のメソッドでは _result は意味を持たない
-}
-
-// 🟢 Good: 計算ロジックと一時変数を別のクラスに分ける
-// リファクタリング: クラスの抽出（または関数の移動）
-class OrderCalculator {
-  constructor(order) {
-    this._order = order;
-    this._result = 0;
-  }
-
-  calculate() {
-    // ここで this._result を自由に使う
-    return this._result;
-  }
-}
-#+END_SRC
-
-* 17. メッセージの連鎖 (Message Chains)
-** 概要
+** 17. メッセージの連鎖 (Message Chains)
+*** 概要
 - クライアントがオブジェクトの構造を深く知りすぎている状態
 - 例：`aPerson.department.manager.name`
 - 中間の関係が変わると、クライアントコードも修正が必要になる
 - 対策：「委譲の隠蔽」でクライアントに関係性を隠す
 
-** コード例
-#+BEGIN_SRC javascript
-// 🔴 Bad: クライアントが「人は部署に属し、部署にはマネージャーがいる」と知っている
-// 結合度が強すぎる
-const managerName = aPerson.department.manager.name;
+*** コード例
+[[file:~/Documents/refactoring/17_message_chains.js][Message Chains]]
 
-// 🟢 Good: Personに尋ねれば分かるようにする（委譲）
-// リファクタリング: 委譲の隠蔽
-// Personクラス内に get manager() { return this.department.manager; } を作る
-const managerName = aPerson.manager.name;
-#+END_SRC
-
-* 18. 仲介人 (Middle Man)
-** 概要
+** 18. 仲介人 (Middle Man)
+*** 概要
 - 「メッセージの連鎖」を避けようとしてカプセル化（委譲）しすぎた状態
 - クラスのメソッドの大半が、他のクラスへ処理を丸投げしているだけ
 - 対策：「仲介人の除去」で、実際に仕事をするオブジェクトを直接呼ぶように戻す
 
-** コード例
-#+BEGIN_SRC javascript
-// 🔴 Bad: Personクラスがただの「伝言ゲーム」になっている
-// departmentの機能が増えるたびに、Personにもメソッド追加が必要になる
-class Person {
-  get manager() { return this.department.manager; }
-  get chargeCode() { return this.department.chargeCode; }
-  get location() { return this.department.location; }
-  // ...
-}
+*** コード例
+[[file:~/Documents/refactoring/18_middle_man.js][Middle Man]]
 
-// 🟢 Good: ある程度は直接アクセスさせる（バランスが大事）
-// リファクタリング: 仲介人の除去
-const manager = aPerson.department.manager;
-#+END_SRC
-
-* 19. インサイダー取引 (Insider Trading)
-** 概要
+** 19. インサイダー取引 (Insider Trading)
+*** 概要
 - モジュール間（クラス間）でデータのやり取りが過剰に行われている状態
 - 2つのクラスが頻繁にお互いの内部データを覗き合っている（密結合）
 - 対策：「関数の移動」「フィールドの移動」で、データをやり取りしなくて済むように整理する
 
-** コード例
-#+BEGIN_SRC javascript
-// 🔴 Bad: DepartmentがEmployeeの内部データを細かく知って計算している
-// Employeeの給与計算ルールが変わると、Departmentも修正が必要になる
-class Department {
-  totalSalary(employees) {
-    return employees.reduce((total, e) => {
-      return total + e.baseSalary + e.bonus - e.deduction;
-    }, 0);
-  }
-}
+*** コード例
+[[file:~/Documents/refactoring/19_insider_trading.js][Insider Trading]]
 
-// 🟢 Good: 計算ロジックをデータ持ち主（Employee）へ移動する
-// Departmentは結果をもらうだけにする
-// リファクタリング: 関数の移動
-class Employee {
-  get salary() {
-    return this.baseSalary + this.bonus - this.deduction;
-  }
-}
-
-class Department {
-  totalSalary(employees) {
-    return employees.reduce((total, e) => total + e.salary, 0);
-  }
-}
-#+END_SRC
-
-* 20. 巨大なクラス (Large Class)
-** 概要
+** 20. 巨大なクラス (Large Class)
+*** 概要
 - インスタンス変数が多すぎる、コード量が多すぎるクラス
 - 何でもかんでも1つのクラスに詰め込まれている状態（神クラス）
 - 共通の接頭辞を持つ変数群（例: `depositAmount`, `depositCurrency`）は抽出のチャンス
 - 対策：「クラスの抽出」「スーパークラスの抽出」
 
-** コード例
-#+BEGIN_SRC javascript
-// 🔴 Bad: ユーザー情報と、電話番号のフォーマット処理が混在している
-// Userクラスが肥大化しやすいパターン
-class User {
-  constructor(name, officeAreaCode, officeNumber) {
-    this.name = name;
-    this.officeAreaCode = officeAreaCode;
-    this.officeNumber = officeNumber;
-  }
+*** コード例
+[[file:~/Documents/refactoring/20_large_class.js][Large Class]]
 
-  getTelephoneNumber() {
-    return `(${this.officeAreaCode}) ${this.officeNumber}`;
-  }
-  // ... 他にもUser自身のメソッドが大量にある ...
-}
-
-// 🟢 Good: 電話番号に関連する責務を別クラスに切り出す
-// リファクタリング: クラスの抽出
-class TelephoneNumber {
-  constructor(areaCode, number) {
-    this.areaCode = areaCode;
-    this.number = number;
-  }
-  toString() {
-    return `(${this.areaCode}) ${this.number}`;
-  }
-}
-
-class User {
-  constructor(name, areaCode, number) {
-    this.name = name;
-    this.telephoneNumber = new TelephoneNumber(areaCode, number);
-  }
-
-  getTelephoneNumber() {
-    return this.telephoneNumber.toString(); // 委譲するだけ
-  }
-}
-#+END_SRC
-
-* 21. クラスのインタフェース不一致 (Alternative Classes with Different Interfaces)
-** 概要
+** 21. クラスのインタフェース不一致 (Alternative Classes with Different Interfaces)
+*** 概要
 - 処理内容は似ているのに、メソッド名や引数がバラバラなクラスたち
 - そのせいで、クラスを差し替えて使う（ポリモーフィズム）ことができない
 - 対策：「関数宣言の変更」でシグネチャを合わせる。必要なら「スーパークラスの抽出」
 
-** コード例
-#+BEGIN_SRC javascript
-// 🔴 Bad: やっていることは「データの取得」なのにメソッド名が違う
-class CRMService {
-  getCRMUser(id) { /* ... */ }
-}
+*** コード例
+[[file:~/Documents/refactoring/21_alternative_classes_with_different_interfaces.js][Alternative Classes with Different Interfaces]]
 
-class BillingService {
-  findBillingInfo(id) { /* ... */ }
-}
-
-// 🟢 Good: インタフェース（メソッド名・引数）を統一する
-// こうすれば、どちらのServiceも同じように扱えるようになる
-// リファクタリング: 関数宣言の変更
-class CRMService {
-  getUser(id) { /* ... */ } // 名前を合わせた
-}
-
-class BillingService {
-  getUser(id) { /* ... */ } // 名前を合わせた
-}
-#+END_SRC
-
-* 22. データクラス (Data Class)
-** 概要
+** 22. データクラス (Data Class)
+*** 概要
 - 属性（フィールド）と、Getter/Setterしか持たないクラス
 - 「ただのデータの入れ物」になっており、ロジックが他のクラスに散らばっている状態
 - オブジェクト指向では、データと処理は一緒にあるべき
 - 対策：「関数の移動」で、そのデータを使っているロジックをこのクラス内に移動させる
 - ※例外：不変なデータ構造（APIレスポンスの型定義など）としてはOK
 
-** コード例
-#+BEGIN_SRC javascript
-// 🔴 Bad: Orderはただの入れ物。計算ロジックが外にある。
-class Order {
-  constructor(amount) {
-    this.amount = amount;
-  }
-}
+*** コード例
+[[file:~/Documents/refactoring/22_data_class.js][Data Class]]
 
-// よそのクラス（例えばPaymentManager）にロジックがある
-const order = new Order(1000);
-const total = order.amount * 1.1; // 消費税計算がここに書かれている
-
-// 🟢 Good: ロジックをデータ（Order）の中に移動する
-// リファクタリング: 関数の移動
-class Order {
-  constructor(amount) {
-    this.amount = amount;
-  }
-
-  get total() {
-    return this.amount * 1.1;
-  }
-}
-const order = new Order(1000);
-console.log(order.total); // 使う側は計算を知らなくていい
-#+END_SRC
-
-* 23. 相続拒否 (Refused Bequest)
-** 概要
+** 23. 相続拒否 (Refused Bequest)
+*** 概要
 - 親クラスの機能（メソッドやデータ）を、子クラスが使っていない、または使いたくない状態
 - 「ゴリラが欲しいだけなのに、バナナを持ったゴリラとジャングル全体が付いてきた」状態
 - 親クラスの設計ミスか、継承の使いすぎが原因
 - 対策：「メソッドの押し下げ」で不要なものを兄弟クラスへ移す。または「委譲によるサブクラスの置き換え」
 
-** コード例
-#+BEGIN_SRC javascript
-// 🔴 Bad: 読み取り専用リストなのに、List（追加・削除可能）を継承している
-// 親の機能（add/remove）を拒否・無効化する必要が出てくる
-class List {
-  add(item) { /* ... */ }
-  remove(item) { /* ... */ }
-  get(index) { /* ... */ }
-}
+*** コード例
+[[file:~/Documents/refactoring/23_refused_bequest.js][Refused Bequest]]
 
-class ReadOnlyList extends List {
-  add(item) { throw new Error("Read only!"); } // 相続拒否！
-  remove(item) { throw new Error("Read only!"); } // 相続拒否！
-}
-
-// 🟢 Good: 継承をやめて、必要な機能だけを持つ（委譲）
-// リファクタリング: 委譲によるサブクラスの置き換え
-class ReadOnlyList {
-  constructor(list) {
-    this._list = list; // 内部にListを持つ（委譲）
-  }
-
-  get(index) {
-    return this._list.get(index);
-  }
-  // addやremoveはそもそも実装しない（インタフェースに出ない）
-}
-#+END_SRC
-
-* 24. コメント (Comments)
-** 概要
+** 24. コメント (Comments)
+*** 概要
 - コメント自体は「良い香り」だが、不吉な臭いの「消臭剤」として使われるのが問題
 - 「ここは何をしているか」というコメントを書きたくなったら、それはコードが複雑すぎる証拠
 - 原則：「コメントを書く前に、リファクタリングでコード自体に語らせる」
 - 対策：「関数の抽出」「関数宣言の変更」「アサーションの導入」
 
-** コード例
-#+BEGIN_SRC javascript
-// 🔴 Bad: 処理が複雑で、コメントがないと理解できない
-function calculate(order) {
-  // ----------------------------------------
-  // 割引適用のチェック
-  // ----------------------------------------
-  if (order.total > 1000 && order.items.length > 5) {
-    // ...
-  }
-}
+*** コード例
+[[file:~/Documents/refactoring/24_comments.js][Comments]]
 
-// 🟢 Good: コメントの内容を関数名にする
-// コメントが不要になり、コードを読むだけで意図が伝わる
-// リファクタリング: 関数の抽出
-function calculate(order) {
-  if (isEligibleForDiscount(order)) {
-    // ...
-  }
-}
-
-function isEligibleForDiscount(order) {
-  return order.total > 1000 && order.items.length > 5;
-}
-#+END_SRC
-
-* 第3章 まとめ
+** 第3章 まとめ
 - 「不吉な臭い」は、リファクタリングを始める合図
 - 完璧なコードを目指すのではなく、「変更しやすいコード」を目指す
 - 迷ったら「キャンプ場のルール」：来たときよりも美しくして帰ろう
