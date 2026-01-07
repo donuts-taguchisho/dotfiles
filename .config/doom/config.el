@@ -84,22 +84,21 @@
       :desc "Toggle Scroll Bar"
       "l s" #'scroll-bar-mode)
 
+(setq org-directory "~/dotfiles/org/")
 ;; *太字* や /斜体/ などの記号を隠して表示する
 (setq org-hide-emphasis-markers t)
-(use-package! org-appear
-  :hook (org-mode . org-appear-mode)
+;; 見出しの余計な「*」を消してインデントを整理する
+(add-hook 'org-mode-hook 'org-indent-mode)
+;; 画像のリンクを実際の画像として表示する
+(setq org-startup-with-inline-images t)
+;; org-modernの設定
+(use-package! org-modern
+  :hook (org-mode . org-modern-mode)
   :config
-  ;; リンク、画像、下付き文字なども対象にする設定（お好みで）
-  (setq org-appear-autoentities t
-        org-appear-autolinks t
-        org-appear-autosubmarkers t))
-
-(use-package! org-tree-slide
-  :config
-  ;; 起動時に自動で「矢印キーで操作できるモード」にする
-  (org-tree-slide-simple-profile)
-
-  ;; スライド移動時に見出しを「中央寄せ」して見やすくする（お好みで）
-  (setq org-tree-slide-heading-emphasis t))
-
-(setq org-directory "~/dotfiles/org/")
+  (setq org-modern-star '("◉" "○" "◈" "◇" "✳" "◆" "●" "◌") ;; 見出し記号のカスタム（お好みで）
+        org-modern-table-vertical 1   ;; 表の縦線を表示（1:あり, nil:なし）
+        org-modern-table-horizontal 0.2 ;; 表の横線の太さ
+        org-modern-list '((43 . "➤") (45 . "–") (42 . "•")) ;; リストの記号 (+, -, *) を変える
+        org-modern-todo t ;; TODOの装飾。Doom標準の色を使いたい場合はnil、org-modern流にするならt
+        org-modern-tag nil  ;; タグの装飾。同上
+        ))

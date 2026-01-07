@@ -1,0 +1,252 @@
+#+TITLE: リファクタリング 第3章 コードの不吉な臭い
+#+AUTHOR: Sho Taguchi
+#+DATE: 2026-01-07
+#+OPTIONS: toc:nil num:nil
+
+* 第3章 コードの不吉な臭い
+:PROPERTIES:
+:UNNUMBERED: t
+:END:
+
+** 「臭い」とは何か？
+- リファクタリングをいつ開始して、いつ終了させるか
+- 正確な基準（メトリクス）ではなく、直感的な兆候（臭い）を頼りにする
+- Kent Beckのおばあちゃんの言葉：「臭ったら、替えるのよ」
+
+
+** 1. 不可思議な名前 (Mysterious Name)
+*** 概要
+- コードの明快さにおいて最も重要なのは「適切な名前付け」
+- 関数、モジュール、変数、クラスなど、何をしているかが名前から分からない状態
+- 対策: 「関数宣言の変更」「変数名の変更」「フィールド名の変更」
+
+*** コード例
+[[file:~/Documents/refactoring/01_mysterious_name_bad.js][Mysterious Name]]
+
+** 2. 重複したコード (Duplicated Code)
+*** 概要
+- 同じ構造のコードが2箇所以上にある状態
+- 問題点: 修正時にすべての箇所を見つけて直す必要がある（修正漏れのリスク）
+- 対策: 「関数の抽出」で1箇所にまとめる
+
+*** コード例
+[[file:~/Documents/refactoring/02_duplicated_code_bad.js][Duplicated Code]]
+
+** 3. 長い関数 (Long Function)
+*** 概要
+- 長く充実した人生を送るのは、短い関数を持ったプログラム
+- 昔は呼び出しコストが懸念されたが、現代では無視できる
+- 指針: 「意図」と「実装」の分離
+  - 「何をしているか（実装）」を読み解く必要があるなら、「何をするか（意図）」を示す関数に切り出す
+- 対策: 「関数の抽出」が99%
+
+*** コード例
+[[file:~/Documents/refactoring/03_long_function_bad.js][Long Function]]
+
+** 4. 長いパラメータリスト (Long Parameter List)
+*** 概要
+- 引数が多いと、使い方が難しくなり、混乱のもとになる
+- 対策:
+  - 「問い合わせによるパラメータの置き換え」: 引数で渡さず、関数内で取得する
+  - 「オブジェクトそのものの受け渡し」: バラバラのデータではなく元のオブジェクトを渡す
+  - 「パラメータオブジェクトの導入」: 複数の引数を1つのオブジェクトにまとめる
+
+*** コード例
+[[file:~/Documents/refactoring/04_long_parameter_list_bad.js][Long Parameter List]]
+
+** 5. グローバルなデータ (Global Data)
+*** 概要
+- コードベースのどこからでも変更できてしまい、どこで変更されたか追跡できない
+- 「地獄の第四層から来た悪魔」
+- グローバル変数だけでなく、クラス変数やシングルトンも含まれる
+- 対策: 「変数のカプセル化」でアクセスを関数経由に限定する
+
+*** コード例
+[[file:~/Documents/refactoring/05_global_data_bad.js][Global Data]]
+
+** 6. 変更可能なデータ (Mutable Data)
+*** 概要
+- データの変更は予期せぬ結果やバグを引き起こしやすい
+- ある箇所での変更が、別の箇所（古い値を期待している箇所）でバグを生む
+- 関数型プログラミングでは「データは不変（Immutable）」が基本
+- 対策: 「変数のカプセル化」「変数の分離」「問い合わせと更新の分離」など
+
+*** コード例
+[[file:~/Documents/refactoring/06_mutable_data_bad.js][Mutable Data]]
+
+** 7. 変更の偏り (Divergent Change)
+*** 概要
+- 「1つのクラスが、異なる理由で頻繁に変更される」状態
+- 例：「DBの仕様変更でも、金融商品の追加でも、このクラスを修正している」
+- 理想：変更箇所は1つに特定したい（単一責任の原則）
+- 対策：「フェーズの分離」「関数の移動」「クラスの抽出」でコンテキストを分ける
+
+*** コード例
+[[file:~/Documents/refactoring/07_divergent_change_bad.js][Divergent Change]]
+
+** 8. 変更の分散 (Shotgun Surgery)
+*** 概要
+- 「変更の偏り」の逆パターン
+- 「1つの変更をするために、あちこちのクラスを少しずつ修正して回る」状態
+- 問題点：修正箇所が多いと見落としが発生しやすい
+- 対策：「関数の移動」「フィールドの移動」で1箇所に集める
+
+*** コード例
+[[file:~/Documents/refactoring/08_shotgun_surgery_bad.js][Shotgun Surgery]]
+
+** 9. 特性の横恋慕 (Feature Envy)
+*** 概要
+- 「ある関数が、自分の所属するモジュールより、他のモジュールのデータとばかり会話している」状態
+- 典型例：他オブジェクトのgetterを何度も呼び出して計算している関数
+- 対策：その関数（またはその一部）を、データがある場所へ移動してあげる（「関数の移動」）
+
+*** コード例
+[[file:~/Documents/refactoring/09_feature_envy_bad.js][Feature Envy]]
+
+** 10. データの群れ (Data Clumps)
+*** 概要
+- いつも一緒に行動しているデータたち（数個のデータ項目）
+- フィールドやメソッドの引数に、同じ組み合わせで何度も現れる
+- 対策：「クラスの抽出」「パラメータオブジェクトの導入」で1つのオブジェクトにまとめる
+
+*** コード例
+[[file:~/Documents/refactoring/10_data_clumps_bad.js][Data Clumps]]
+
+** 11. 基本データ型への執着 (Primitive Obsession)
+*** 概要
+- 電話番号、通貨、範囲などを、単なる文字列や数値（プリミティブ）として扱ってしまうこと
+- 「文字列で型付けされた(stringly typed)」変数になりがち
+- 対策：「オブジェクトによるプリミティブの置き換え」で専用のクラスを作る
+
+*** コード例
+[[file:~/Documents/refactoring/11_primitive_obsession_bad.js][Primitive Obsession]]
+
+** 12. 重複したスイッチ文 (Repeated Switches)
+*** 概要
+- 同じ条件分岐（switchやif-else）がコードのあちこちに重複している状態
+- 問題点：新しい分岐（タイプ）を追加する際、すべてのswitch文を探して修正する必要がある
+- 対策：「ポリモーフィズムによる条件記述の置き換え」
+
+*** コード例
+[[file:~/Documents/refactoring/12_repeated_switches_bad.js][Repeated Switches]]
+
+** 13. ループ (Loops)
+*** 概要
+- プログラミング初期からあるループ処理だが、今やパイプライン処理の方が優れている
+- ループは「何をしているか」が見えにくい
+- 対策：「パイプラインによるループの置き換え」（filter, mapなど）
+
+*** コード例
+[[file:~/Documents/refactoring/13_loops_bad.js][Loops]]
+
+** 14. 怠け者の要素 (Lazy Element)
+*** 概要
+- 働いていないクラスや関数
+- 例：本体と同じ名前の関数を呼ぶだけの関数、メソッドが1つしかないクラス
+- かつては必要だったが、リファクタリングの結果不要になったものが多い
+- 対策：「関数のインライン化」「クラスのインライン化」で削除する
+
+*** コード例
+[[file:~/Documents/refactoring/14_lazy_element_bad.js][Lazy Element]]
+
+** 15. 疑わしき一般化 (Speculative Generality)
+*** 概要
+- 「いつか必要になるだろう」と先回りして作った、現在は使われていない機能
+- 未使用のパラメータ、複雑すぎる抽象クラス、テストコードからしか呼ばれていない関数など
+- 対策：無用の長物は削除する。「YAGNI (You Aren't Gonna Need It)」の原則
+- リファクタリング：「クラス階層の平坦化」「関数のインライン化」「関数宣言の変更」「デッドコードの削除」
+
+*** コード例
+[[file:~/Documents/refactoring/15_speculative_Generality_bad.js][Speculative Generality]]
+
+** 16. 一時的属性 (Temporary Field)
+*** 概要
+- 特定の状況（特定のメソッド実行中など）でしか値が入らないインスタンス変数
+- 普段は空っぽなのに、ある時だけ値が入る変数は、コードの理解を妨げる
+- 対策：「クラスの抽出」でその変数が活躍する場所（クラス）を作ってあげる
+
+*** コード例
+[[file:~/Documents/refactoring/16_temporary_field_bad.js][Temporary Field]]
+
+** 17. メッセージの連鎖 (Message Chains)
+*** 概要
+- クライアントがオブジェクトの構造を深く知りすぎている状態
+- 例：`aPerson.department.manager.name`
+- 中間の関係が変わると、クライアントコードも修正が必要になる
+- 対策：「委譲の隠蔽」でクライアントに関係性を隠す
+
+*** コード例
+[[file:~/Documents/refactoring/17_message_chains_bad.js][Message Chains]]
+
+** 18. 仲介人 (Middle Man)
+*** 概要
+- 「メッセージの連鎖」を避けようとしてカプセル化（委譲）しすぎた状態
+- クラスのメソッドの大半が、他のクラスへ処理を丸投げしているだけ
+- 対策：「仲介人の除去」で、実際に仕事をするオブジェクトを直接呼ぶように戻す
+
+*** コード例
+[[file:~/Documents/refactoring/18_middle_man_bad.js][Middle Man]]
+
+** 19. インサイダー取引 (Insider Trading)
+*** 概要
+- モジュール間（クラス間）でデータのやり取りが過剰に行われている状態
+- 2つのクラスが頻繁にお互いの内部データを覗き合っている（密結合）
+- 対策：「関数の移動」「フィールドの移動」で、データをやり取りしなくて済むように整理する
+
+*** コード例
+[[file:~/Documents/refactoring/19_insider_trading_bad.js][Insider Trading]]
+
+** 20. 巨大なクラス (Large Class)
+*** 概要
+- インスタンス変数が多すぎる、コード量が多すぎるクラス
+- 何でもかんでも1つのクラスに詰め込まれている状態（神クラス）
+- 共通の接頭辞を持つ変数群（例: `depositAmount`, `depositCurrency`）は抽出のチャンス
+- 対策：「クラスの抽出」「スーパークラスの抽出」
+
+*** コード例
+[[file:~/Documents/refactoring/20_large_class_bad.js][Large Class]]
+
+** 21. クラスのインタフェース不一致 (Alternative Classes with Different Interfaces)
+*** 概要
+- 処理内容は似ているのに、メソッド名や引数がバラバラなクラスたち
+- そのせいで、クラスを差し替えて使う（ポリモーフィズム）ことができない
+- 対策：「関数宣言の変更」でシグネチャを合わせる。必要なら「スーパークラスの抽出」
+
+*** コード例
+[[file:~/Documents/refactoring/21_alternative_classes_with_different_interfaces_bad.js][Alternative Classes with Different Interfaces]]
+
+** 22. データクラス (Data Class)
+*** 概要
+- 属性（フィールド）と、Getter/Setterしか持たないクラス
+- 「ただのデータの入れ物」になっており、ロジックが他のクラスに散らばっている状態
+- オブジェクト指向では、データと処理は一緒にあるべき
+- 対策：「関数の移動」で、そのデータを使っているロジックをこのクラス内に移動させる
+- ※例外：不変なデータ構造（APIレスポンスの型定義など）としてはOK
+
+*** コード例
+[[file:~/Documents/refactoring/22_data_class_bad.js][Data Class]]
+
+** 23. 相続拒否 (Refused Bequest)
+*** 概要
+- 親クラスの機能（メソッドやデータ）を、子クラスが使っていない、または使いたくない状態
+- 「ゴリラが欲しいだけなのに、バナナを持ったゴリラとジャングル全体が付いてきた」状態
+- 親クラスの設計ミスか、継承の使いすぎが原因
+- 対策：「メソッドの押し下げ」で不要なものを兄弟クラスへ移す。または「委譲によるサブクラスの置き換え」
+
+*** コード例
+[[file:~/Documents/refactoring/23_refused_bequest_bad.js][Refused Bequest]]
+
+** 24. コメント (Comments)
+*** 概要
+- コメント自体は「良い香り」だが、不吉な臭いの「消臭剤」として使われるのが問題
+- 「ここは何をしているか」というコメントを書きたくなったら、それはコードが複雑すぎる証拠
+- 原則：「コメントを書く前に、リファクタリングでコード自体に語らせる」
+- 対策：「関数の抽出」「関数宣言の変更」「アサーションの導入」
+
+*** コード例
+[[file:~/Documents/refactoring/24_comments_bad.js][Comments]]
+
+** 第3章 まとめ
+- 「不吉な臭い」は、リファクタリングを始める合図
+- 完璧なコードを目指すのではなく、「変更しやすいコード」を目指す
+- 迷ったら「キャンプ場のルール」：来たときよりも美しくして帰ろう
