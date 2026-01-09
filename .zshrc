@@ -7,28 +7,28 @@ if [ -f '/Users/taguchi.sho/Documents/google-cloud-sdk/completion.zsh.inc' ]; th
   . '/Users/taguchi.sho/Documents/google-cloud-sdk/completion.zsh.inc'
 fi
 
-export PATH="/opt/homebrew/opt/openssl@3/bin:$PATH"
+# openssl@3（ディレクトリがあるときだけ PATH に追加）
+if [ -d "/opt/homebrew/opt/openssl@3/bin" ]; then
+  export PATH="/opt/homebrew/opt/openssl@3/bin:$PATH"
+fi
+
 export NVM_DIR="$HOME/.nvm"
 [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"
 [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"
 
 # Doom Emacs
-export PATH="$HOME/.local/bin:$PATH"
-# export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
-# export LIBRARY_PATH=$LIBRARY_PATH:$(brew --prefix zstd)/lib/
+if [ -f "$HOME/.config/emacs/bin/doom/" ]; then
+  export PATH="$HOME/.local/bin:$PATH"
+fi
 
-eval "$(rbenv init - zsh)"
-
-# ruby on Rails
-export PATH="/opt/homebrew/bin:$PATH"
-eval "$(~/.local/bin/mise activate)"
+# mise（入っているときだけ有効化）
+if command -v mise >/dev/null 2>&1; then
+  eval "$(mise activate zsh)"
+fi
 
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
-export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
-export PATH="/opt/homebrew/opt/mysql@8.0/bin:$PATH"
-
-# C拡張を含むgemをコンパイルするために、以下の設定も推奨されます
-export LDFLAGS="-L/opt/homebrew/opt/ruby/lib"
-export CPPFLAGS="-I/opt/homebrew/opt/ruby/include"
-
+# mysql@8.0（ディレクトリがあるときだけ PATH に追加）
+if [ -d "/opt/homebrew/opt/mysql@8.0/bin" ]; then
+  export PATH="/opt/homebrew/opt/mysql@8.0/bin:$PATH"
+fi
