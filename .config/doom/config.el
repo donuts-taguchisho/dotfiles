@@ -105,3 +105,9 @@
         org-modern-todo t ;; TODOの装飾。Doom標準の色を使いたい場合はnil、org-modern流にするならt
         org-modern-tag nil  ;; タグの装飾。同上
         ))
+
+;; TAB幅を2に設定
+(setq-default tab-width 2)
+;; 確実を期すために
+;; (add-hook 'after-change-major-mode-hook
+;;           (lambda () (setq tab-width 2)))
