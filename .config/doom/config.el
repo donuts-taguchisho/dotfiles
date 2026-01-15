@@ -105,3 +105,32 @@
         org-modern-todo t ;; TODOの装飾。Doom標準の色を使いたい場合はnil、org-modern流にするならt
         org-modern-tag nil  ;; タグの装飾。同上
         ))
+
+;; グローバルに設定
+(setq-default tab-width 2)
+
+;; after-change-major-mode-hook で確実に適用
+(add-hook 'after-change-major-mode-hook
+          (lambda () (setq tab-width 2)))
+
+;; rubyをmiseでインストールした場合のruby-lspの設定をzshから読み取る設定
+(after! exec-path-from-shell
+  ;; GUI起動時にログインシェル相当の環境を取り込む
+  (setq exec-path-from-shell-shell-name "zsh"
+        exec-path-from-shell-arguments '("-l"))
+  ;; 取り込みたい環境変数
+  (dolist (var '("PATH" "GEM_HOME" "GEM_PATH" "RBENV_ROOT" "RUBYOPT" "BUNDLE_GEMFILE"))
+    (add-to-list 'exec-path-from-shell-variables var))
+  (exec-path-from-shell-initialize))
+
+(after! lsp-mode
+  ;; ruby-lsp を bundler 経由で起動（プロジェクトのGemfileに合わせる）
+  (setq lsp-ruby-lsp-use-bundler t)
+
+  ;; Solargraph を使わず ruby-lsp を優先
+  ;; （lsp-mode のバージョン差異があるので、まずは server command を明示）
+  (setq lsp-ruby-lsp-server-command '("bundle" "exec" "ruby-lsp")))
+
+(after! lsp-mode
+  ;; plistではなくhash-tableで扱う（ruby-lsp 側と噛み合わない時の対策）
+  (setq lsp-use-plists nil))
