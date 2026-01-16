@@ -88,7 +88,6 @@
       :desc "Vertico project search"
       "/" #'+vertico/project-search)
 
-(setq org-directory "~/org/")
 ;; *太字* や /斜体/ などの記号を隠して表示する
 (setq org-hide-emphasis-markers t)
 ;; 見出しの余計な「*」を消してインデントを整理する
@@ -106,3 +105,40 @@
         org-modern-todo t ;; TODOの装飾。Doom標準の色を使いたい場合はnil、org-modern流にするならt
         org-modern-tag nil  ;; タグの装飾。同上
         ))
+
+;; TAB幅を2に設定
+(setq-default tab-width 2)
+;; 確実を期すために
+;; (add-hook 'after-change-major-mode-hook
+;;           (lambda () (setq tab-width 2)))
+
+;; erbファイル用
+(with-eval-after-load 'flycheck
+  (add-hook 'mhtml-mode-hook
+            (lambda ()
+              ;; html-tidy というチェッカーだけ無効リストに追加
+              (setq-local flycheck-disabled-checkers '(html-tidy)))))
+
+(add-hook 'web-mode-hook
+  (lambda ()
+    (font-lock-add-keywords
+     nil
+     ;; < の直後に非ASCII文字（日本語など）が来る場合、
+     ;; そのブロック全体を 'default フェイス（通常色）で上書きする
+     '(("<\\([[:nonascii:]][^>]*\\)>" 0 'default t))
+     'append))) ;; 'append を指定して web-mode のハイライトより後に適用させる
+
+(setq pangu-spacing-mode nil)
+
+;; treemacsの設定
+(after! treemacs
+  ;; 幅を固定ロックしない（手で調整可能にする）
+  (setq treemacs-width-is-initially-locked nil
+        treemacs-width 50) ; デフォルト幅
+
+  (defun my/treemacs-set-width (width)
+    "Treemacs の幅を WIDTH（列数）に設定する。"
+    (interactive "nTreemacs width: ")
+    (setq treemacs-width width)
+    (when-let ((win (treemacs-get-local-window)))
+      (adjust-window-trailing-edge win (- width (window-total-width win)) t))))
