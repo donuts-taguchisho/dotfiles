@@ -127,3 +127,5 @@
      ;; そのブロック全体を 'default フェイス（通常色）で上書きする
      '(("<\\([[:nonascii:]][^>]*\\)>" 0 'default t))
      'append))) ;; 'append を指定して web-mode のハイライトより後に適用させる
+
+(setq pangu-spacing-mode nil)
