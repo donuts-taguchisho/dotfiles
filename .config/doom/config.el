@@ -142,25 +142,3 @@
     (setq treemacs-width width)
     (when-let ((win (treemacs-get-local-window)))
       (adjust-window-trailing-edge win (- width (window-total-width win)) t))))
-
-;; rubyをmiseでインストールした場合のruby-lspの設定をzshから読み取る設定
-(after! exec-path-from-shell
-  ;; GUI起動時にログインシェル相当の環境を取り込む
-  (setq exec-path-from-shell-shell-name "zsh"
-        exec-path-from-shell-arguments '("-l"))
-  ;; 取り込みたい環境変数
-  (dolist (var '("PATH" "GEM_HOME" "GEM_PATH" "RBENV_ROOT" "RUBYOPT" "BUNDLE_GEMFILE"))
-    (add-to-list 'exec-path-from-shell-variables var))
-  (exec-path-from-shell-initialize))
-
-(after! lsp-mode
-  ;; ruby-lsp を bundler 経由で起動（プロジェクトのGemfileに合わせる）
-  (setq lsp-ruby-lsp-use-bundler t)
-
-  ;; Solargraph を使わず ruby-lsp を優先
-  ;; （lsp-mode のバージョン差異があるので、まずは server command を明示）
-  (setq lsp-ruby-lsp-server-command '("bundle" "exec" "ruby-lsp")))
-
-(after! lsp-mode
-  ;; plistではなくhash-tableで扱う（ruby-lsp 側と噛み合わない時の対策）
-  (setq lsp-use-plists nil))
