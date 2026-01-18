@@ -142,3 +142,25 @@
     (setq treemacs-width width)
     (when-let ((win (treemacs-get-local-window)))
       (adjust-window-trailing-edge win (- width (window-total-width win)) t))))
+
+(defun my-ruby-lsp-initialization-options ()
+  "Return initialization options for ruby-lsp."
+  '(:formatter "standard"
+    :linters ["standard"]))
+
+(use-package lsp-mode
+  :init
+  ;; rubocop-ls や標準の ruby-lsp-ls を無効にしておく
+  (setq lsp-disabled-clients '(rubocop-ls ruby-lsp-ls))
+  :config
+  (lsp-register-client
+   (make-lsp-client
+    :new-connection (lsp-stdio-connection "ruby-lsp")
+    :major-modes '(ruby-mode ruby-ts-mode)
+    :server-id 'my-ruby-lsp
+    :initialization-options #'my-ruby-lsp-initialization-options))
+  ;; Ruby では常に自作クライアントだけを有効にする
+  (add-hook 'ruby-mode-hook
+            (lambda ()
+              (setq-local lsp-enabled-clients '(my-ruby-lsp))
+              (lsp-deferred))))

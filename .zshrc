@@ -21,11 +21,6 @@ if [ -f "$HOME/.config/emacs/bin/doom/" ]; then
   export PATH="$HOME/.local/bin:$PATH"
 fi
 
-# mise（入っているときだけ有効化）
-if command -v mise >/dev/null 2>&1; then
-  eval "$(mise activate zsh)"
-fi
-
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
 # mysql@8.0（ディレクトリがあるときだけ PATH に追加）
