@@ -162,7 +162,7 @@
    (make-lsp-client
     :new-connection (lsp-stdio-connection "ruby-lsp")
     :major-modes '(ruby-mode ruby-ts-mode)
-    :server-id 'my-ruby-lsp
+    :server-id 'my-ruby-lsp))
   ;; Ruby では常に自作クライアントだけを有効にする
   (add-hook 'ruby-mode-hook
             (lambda ()
