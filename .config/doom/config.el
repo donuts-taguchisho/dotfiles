@@ -117,7 +117,25 @@
      '(("<\\([[:nonascii:]][^>]*\\)>" 0 'default t))
      'append))) ;; 'append を指定して web-mode のハイライトより後に適用させる
 
-(setq pangu-spacing-mode nil)
+;; 自動で日本語と英数字の間にスペースを入れる機能をオフにする
+(after! pangu-spacing
+  ;; もしどこかで有効化されていても起動後に必ずOFFにする
+  (when (bound-and-true-p pangu-spacing-mode)
+    (pangu-spacing-mode -1))
+
+  ;; もし global-pangu-spacing-mode が存在する環境ならそれもOFF
+  (when (fboundp 'global-pangu-spacing-mode)
+    (global-pangu-spacing-mode -1))
+
+  ;; “実際に挿入”を無効化
+  (setq pangu-spacing-real-insert-separtor nil)
+
+  ;; 念のため：コミットメッセージでは常にOFF
+  (add-hook 'git-commit-mode-hook
+            (lambda ()
+              (setq-local pangu-spacing-real-insert-separtor nil)
+              (when (bound-and-true-p pangu-spacing-mode)
+                (pangu-spacing-mode -1)))))
 
 ;; treemacsの設定
 (after! treemacs
@@ -185,3 +203,13 @@
 ;;    (typescript-ts-mode . lsp)))
 
 ;; (use-package lsp-ui)
+
+(defun my/im-select-abc ()
+  (when (executable-find "im-select")
+    (start-process "im-select" nil "im-select" "com.apple.keylayout.ABC")))
+
+;; insertから抜けたタイミング
+(add-hook 'evil-insert-state-exit-hook #'my/im-select-abc)
+
+;; minibuffer（コマンド入力）終了時も寄せたい場合
+(add-hook 'minibuffer-exit-hook #'my/im-select-abc)
