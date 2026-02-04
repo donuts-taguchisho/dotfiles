@@ -1,5 +1,7 @@
 # ruby
 # export PATH="$HOME/.rbenv/bin:$PATH"
+
+export PATH="$HOME/.cargo/bin:$PATH"
 eval "$(rbenv init -)"
 
 if [ -f '/Users/taguchi.sho/Documents/google-cloud-sdk/path.zsh.inc' ]; then

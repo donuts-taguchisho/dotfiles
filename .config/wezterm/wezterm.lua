@@ -2,6 +2,7 @@ local wezterm = require 'wezterm'
 
 local config = wezterm.config_builder()
 
+config.start_as = 'Maximized'
 config.automatically_reload_config = true
 config.font_size = 12.0
 config.use_ime  = true
@@ -23,6 +24,11 @@ config.show_new_tab_button_in_tab_bar = false
 config.keys = require("keybinds").keys
 config.key_tables = require("keybinds").key_tables
 config.disable_default_key_bindings = true
-config.leader = { key = "q", mods = "CTRL", timeout_milliseconds = 2000 }
+config.leader = { key = " ", mods = "CTRL", timeout_milliseconds = 10000 }
+
+config.set_environment_variables = {
+  TERM = 'xterm-256color',
+  COLORTERM = 'truecolor',
+}
 
 return config

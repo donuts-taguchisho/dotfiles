@@ -3,6 +3,8 @@ local act = wezterm.action
 
 return {
   keys = {
+    -- Doom Emacs 風: SPC w でウィンドウ操作モードへ
+    { key = 'w', mods = 'LEADER', action = act.ActivateKeyTable { name = 'window_mode', one_shot = true } },
     { key = 'Tab', mods = 'CTRL', action = act.ActivateTabRelative(1) },
     { key = 'Tab', mods = 'SHIFT|CTRL', action = act.ActivateTabRelative(-1) },
     { key = 'Enter', mods = 'ALT', action = act.ToggleFullScreen },
@@ -148,6 +150,21 @@ return {
   },
 
   key_tables = {
+    window_mode = {
+      { key = 'v', action = act.SplitHorizontal { domain = 'CurrentPaneDomain' } },
+      { key = 's', action = act.SplitVertical { domain = 'CurrentPaneDomain' } },
+      { key = 'c', action = act.CloseCurrentPane { confirm = true } },
+      { key = 'w', action = act.ActivatePaneDirection 'Next' },
+      { key = 'W', mods = 'SHIFT', action = act.ActivatePaneDirection 'Prev' },
+      -- ついでに移動(hjkl)も入れるとよりDoomっぽくなります
+      { key = 'h', action = act.ActivatePaneDirection 'Left' },
+      { key = 'j', action = act.ActivatePaneDirection 'Down' },
+      { key = 'k', action = act.ActivatePaneDirection 'Up' },
+      { key = 'l', action = act.ActivatePaneDirection 'Right' },
+      -- モードを抜ける
+      { key = 'Escape', action = 'PopKeyTable' },
+    },
+
     copy_mode = {
       { key = 'Tab', mods = 'NONE', action = act.CopyMode 'MoveForwardWord' },
       { key = 'Tab', mods = 'SHIFT', action = act.CopyMode 'MoveBackwardWord' },
