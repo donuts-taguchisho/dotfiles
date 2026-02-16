@@ -2,6 +2,7 @@
 # export PATH="$HOME/.rbenv/bin:$PATH"
 
 export PATH="$HOME/.cargo/bin:$PATH"
+export PATH="$HOME/.config/emacs/bin:$PATH"
 eval "$(rbenv init -)"
 
 if [ -f '/Users/taguchi.sho/Documents/google-cloud-sdk/path.zsh.inc' ]; then
