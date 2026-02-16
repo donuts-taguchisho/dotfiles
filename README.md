@@ -1,4 +1,4 @@
-#GitHub にプッシュする [README.md](http://README.md) の下書き。構成案をもとに肉付けしていく。
+#GitHub にプッシュするREADME.mdの下書き。構成案をもとに肉付けしていく。
 
 <aside>
 ✏️
