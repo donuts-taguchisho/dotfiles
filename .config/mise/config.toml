@@ -1,6 +1,6 @@
-[tools]
-node = "lts"
-ruby = "3"
-
 [settings]
-legacy_version_file = true
+idiomatic_version_file_enable_tools = ["node", "ruby"]
+
+[tools]
+# node = "lts"
+# ruby = "3"
