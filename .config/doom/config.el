@@ -191,6 +191,10 @@
       :desc "Vertico project search"
       "/" #'+vertico/project-search)
 
+(map! :leader
+      :desc "treemacs select window"
+      "l w" #'treemacs-select-window)
+
 ;; 東城さんの設定
 ;; おそらくそのまま適用しても、DoomEmacs用ではないので効果がなかったかも
 ;; (use-package lsp-mode
