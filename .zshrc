@@ -22,11 +22,8 @@ if [ -f "$HOME/.config/emacs/bin/doom/" ]; then
   export PATH="$HOME/.local/bin:$PATH"
 fi
 
-# ruby
-# export PATH="$HOME/.rbenv/bin:$PATH"
-eval "$(/opt/homebrew/bin/brew shellenv)"
-eval "$(rbenv init -)"
 export PATH="$HOME/.cargo/bin:$PATH"
+eval "$(/opt/homebrew/bin/brew shellenv)"
 export PATH="$HOME/.config/emacs/bin:$PATH"
 eval "$(mise activate zsh)"
 export PATH="$HOME/.local/share/mise/shims:$PATH"
