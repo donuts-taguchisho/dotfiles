@@ -103,6 +103,11 @@
 ;; (add-hook 'after-change-major-mode-hook
 ;;           (lambda () (setq tab-width 2)))
 
+;; mise shims を exec-path と PATH に追加
+(let ((mise-shims (expand-file-name "~/.local/share/mise/shims")))
+  (add-to-list 'exec-path mise-shims)
+  (setenv "PATH" (concat mise-shims ":" (getenv "PATH"))))
+
 ;; erbファイル用
 (with-eval-after-load 'flycheck
   (add-hook 'mhtml-mode-hook
