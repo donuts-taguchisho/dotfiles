@@ -3,4 +3,6 @@ idiomatic_version_file_enable_tools = ["node", "ruby"]
 
 [tools]
 node = "lts"
+npm = "latest"
 ruby = "latest"
+yarn = "latest"
