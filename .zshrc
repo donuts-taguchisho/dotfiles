@@ -21,9 +21,11 @@ fi
 if [ -f "$HOME/.config/emacs/bin/doom/" ]; then
   export PATH="$HOME/.local/bin:$PATH"
 fi
+export PATH="/opt/homebrew/opt/emacs-plus@30/bin:$PATH"
+export PATH="$HOME/.config/emacs/bin:$PATH"
 
 export PATH="$HOME/.cargo/bin:$PATH"
 eval "$(/opt/homebrew/bin/brew shellenv)"
-export PATH="$HOME/.config/emacs/bin:$PATH"
 eval "$(mise activate zsh)"
 export PATH="$HOME/.local/share/mise/shims:$PATH"
+export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
