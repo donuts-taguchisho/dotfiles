@@ -224,3 +224,18 @@
 
 ;; minibuffer（コマンド入力）終了時も寄せたい場合
 (add-hook 'minibuffer-exit-hook #'my/im-select-abc)
+
+;; accept completion from copilot and fallback to company
+(use-package! copilot
+  :hook (prog-mode . copilot-mode)
+  :bind (:map copilot-completion-map
+              ("<tab>" . 'copilot-accept-completion)
+              ("TAB" . 'copilot-accept-completion)
+              ("C-TAB" . 'copilot-accept-completion-by-word)
+              ("C-<tab>" . 'copilot-accept-completion-by-word)))
+
+(after! copilot
+  (setq copilot-indent-offset-warning-disable t)
+  (defadvice! my/copilot-indent-offset (&rest _)
+    :override #'copilot--infer-indentation-offset
+    tab-width))
