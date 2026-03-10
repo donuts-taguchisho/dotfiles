@@ -7,6 +7,14 @@ if [ -f '/Users/taguchi.sho/Documents/google-cloud-sdk/completion.zsh.inc' ]; th
   . '/Users/taguchi.sho/Documents/google-cloud-sdk/completion.zsh.inc'
 fi
 
+# AWS NGT Tools
+export PATH="$HOME/.aws-ngt-tools/bin:$PATH"
+
+# AWS ngt認証の自動設定
+eval "$(aws-ngt-auth status --export 2>/dev/null || true)"
+aws-ngt-login() { aws-ngt-auth login "$1" && export AWS_DEFAULT_PROFILE=ngt; }
+aws-ngt-logout() { aws-ngt-auth logout && unset AWS_DEFAULT_PROFILE; }
+
 # openssl@3（ディレクトリがあるときだけ PATH に追加）
 if [ -d "/opt/homebrew/opt/openssl@3/bin" ]; then
   export PATH="/opt/homebrew/opt/openssl@3/bin:$PATH"
