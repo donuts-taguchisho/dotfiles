@@ -1,1 +1,3 @@
 .DS_Store
+bin/add-work-issue.sh
+bin/add-work-task.sh
