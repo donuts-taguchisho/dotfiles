@@ -239,3 +239,15 @@
   (defadvice! my/copilot-indent-offset (&rest _)
     :override #'copilot--infer-indentation-offset
     tab-width))
+
+(defun open-in-cursor ()
+  "Open the current file in Cursor."
+  (interactive)
+  (let ((filename (buffer-file-name)))
+    (if filename
+        (start-process "open-in-cursor" nil "open" "-a" "Cursor" filename)
+      (message "No file associated with this buffer."))))
+
+(map! :leader
+      :desc "Open in Cursor"
+      "o C" #'open-in-cursor)
