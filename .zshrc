@@ -20,10 +20,16 @@ if [ -d "/opt/homebrew/opt/openssl@3/bin" ]; then
   export PATH="/opt/homebrew/opt/openssl@3/bin:$PATH"
 fi
 
-# mysql@8.0（ディレクトリがあるときだけ PATH に追加）
-if [ -d "/opt/homebrew/opt/mysql@8.0/bin" ]; then
-  export PATH="/opt/homebrew/opt/mysql@8.0/bin:$PATH"
+# homebrewでインストールしたMySQLのバージョンが複数ある場合、それらを切り替えるのは、以下のコマンドで行う
+# brew unlink mysql... && brew link mysql...
+if [ -d "opt/homebrew/opt/mysql-client@8.4/bin" ]; then
+  export PATH="/opt/homebrew/opt/mysql-client@8.4/bin:$PATH"
 fi
+
+if [ -d "opt/homebrew/opt/mysql/bin" ]; then
+  export PATH="/opt/homebrew/opt/mysql/bin:$PATH"
+fi
+
 
 # Doom Emacs
 if [ -f "$HOME/.config/emacs/bin/doom/" ]; then
