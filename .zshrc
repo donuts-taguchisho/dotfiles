@@ -22,14 +22,17 @@ fi
 
 # homebrewでインストールしたMySQLのバージョンが複数ある場合、それらを切り替えるのは、以下のコマンドで行う
 # brew unlink mysql... && brew link mysql...
-if [ -d "opt/homebrew/opt/mysql-client@8.4/bin" ]; then
-  export PATH="/opt/homebrew/opt/mysql-client@8.4/bin:$PATH"
-fi
-
 if [ -d "opt/homebrew/opt/mysql/bin" ]; then
   export PATH="/opt/homebrew/opt/mysql/bin:$PATH"
 fi
 
+if [ -d "opt/homebrew/opt/mysql@8.4/bin" ]; then
+  export PATH="/opt/homebrew/opt/mysql@8.4/bin:$PATH"
+fi
+
+if [ -d "opt/homebrew/opt/mysql-client@8.4/bin" ]; then
+  export PATH="/opt/homebrew/opt/mysql-client@8.4/bin:$PATH"
+fi
 
 # Doom Emacs
 if [ -f "$HOME/.config/emacs/bin/doom/" ]; then
@@ -43,3 +46,5 @@ eval "$(/opt/homebrew/bin/brew shellenv)"
 eval "$(mise activate zsh)"
 export PATH="$HOME/.local/share/mise/shims:$PATH"
 export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
+
+export COPILOT_EDITOR="nvim"
